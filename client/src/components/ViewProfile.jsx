@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:5000"; // change if deployed backend URL differs
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // change if deployed backend URL differs
 
 function findToken() {
   const keys = ["token", "accessToken", "access_token", "jwt"];
