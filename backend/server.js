@@ -48,6 +48,8 @@ const allowedOrigins = [
   'http://localhost:5173',     // Vite dev server
   'http://localhost:5174',
   'https://iiacademy.in',
+  'https://iiacademy-client.onrender.com',
+  'https://iiacademy-admin.onrender.com'
 ];
 
 app.use(cors({
