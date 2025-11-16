@@ -88,10 +88,7 @@ app.use((err, req, res, next) => {
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/iiacademy';
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoUri);
     console.log('MongoDB connected');
   } catch (err) {
     console.error('Error connecting to MongoDB:', err.message);
