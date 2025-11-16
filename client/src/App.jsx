@@ -13,7 +13,7 @@ import Choose from './components/Choose';
 import ViewProfile from './components/ViewProfile';
 import EditProfile from './components/EditProfile';
 import DeleteAccount from './components/DeleteAccount';
-import NotFound from './components/NotFound'; // optional — create this if you want a 404 page
+
 
 function App() {
   return (
@@ -36,7 +36,7 @@ function App() {
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/profile/delete" element={<DeleteAccount />} />
 
-        <Route path="*" element={<NotFound />} /> {/* shows 404 for unknown routes */}
+       
       </Routes>
     </BrowserRouter>
   );
