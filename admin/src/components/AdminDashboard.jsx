@@ -2,23 +2,48 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+/* auth header helper - checks few token keys */
 const authHeader = () => {
-  const token = localStorage.getItem("ii_token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const keys = ["ii_token", "token", "accessToken", "access_token", "jwt"];
+  try {
+    for (const k of keys) {
+      const v = localStorage.getItem(k) || sessionStorage.getItem(k);
+      if (v) return { Authorization: `Bearer ${v}` };
+    }
+  } catch (e) {
+    // ignore storage errors
+  }
+  return {};
 };
 
-/* Small spinner component (Tailwind) */
-function Spinner({ size = 5 }) {
-  const s = size;
+/* Small spinner component (inline size so Tailwind dynamic classes not required) */
+function Spinner({ size = 16 }) {
+  // size is pixels
   return (
     <div
-      className={`inline-block w-${s} h-${s} border-2 border-t-transparent rounded-full animate-spin`}
-      style={{ borderColor: "rgba(99,102,241,0.15)", borderTopColor: "rgb(99 102 241)" }}
+      role="status"
       aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        borderWidth: 2,
+        borderStyle: "solid",
+        borderColor: "rgba(99,102,241,0.15)",
+        borderTopColor: "rgb(99 102 241)",
+        borderRadius: "9999px",
+        display: "inline-block",
+        animation: "spin 1s linear infinite",
+      }}
     />
   );
 }
+
+/* add minimal keyframes for spin if not provided globally */
+const spinnerStyles = (
+  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+);
 
 /* Tiny helper used for human readable counts */
 const plural = (n, sing, pl) => `${n} ${n === 1 ? sing : pl}`;
@@ -50,7 +75,7 @@ export default function AdminDashboard() {
 
   // Auth guard
   useEffect(() => {
-    const token = localStorage.getItem("ii_token");
+    const token = localStorage.getItem("ii_token") || localStorage.getItem("token");
     if (!token) navigate("/login", { replace: true });
     // eslint-disable-next-line
   }, []);
@@ -104,10 +129,14 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/courses (POST)", status: res.status, data: res.data });
 
       if (res.status === 201 || res.status === 200) {
-        // prefer using returned course if available
         const added = res.data?.course || res.data;
-        if (added && added._id) setCourses((prev) => [added, ...prev]);
-        else await fetchCourses();
+        if (added && (added._id || added.id)) {
+          // normalize id key
+          const normalized = { ...added, _id: added._id || added.id };
+          setCourses((prev) => [normalized, ...prev]);
+        } else {
+          await fetchCourses();
+        }
 
         setCourseForm({ title: "", description: "", duration: "", instructor: "" });
         showMessage("success", "Course added");
@@ -124,7 +153,7 @@ export default function AdminDashboard() {
   };
 
   const startCourseEdit = (course) => {
-    setEditingCourseId(course._id);
+    setEditingCourseId(course._id || course.id);
     setCourseForm({
       title: course.title || "",
       description: course.description || "",
@@ -149,12 +178,17 @@ export default function AdminDashboard() {
 
       if (res.status === 200) {
         const updated = res.data?.course || res.data;
-        // update local list
-        setCourses((prev) => prev.map((c) => (c._1d === editingCourseId ? { ...c, ...updated } : c)));
-        // fallback: if backend didn't return data, merge from payload
-        if (!updated) {
-          setCourses((prev) => prev.map((c) => (c._id === editingCourseId ? { ...c, ...payload } : c)));
-        }
+        // update local list (fix: use _id)
+        setCourses((prev) =>
+          prev.map((c) => {
+            const id = c._id || c.id;
+            if (id === editingCourseId) {
+              return { ...c, ...(updated || payload) };
+            }
+            return c;
+          })
+        );
+
         setEditingCourseId(null);
         setCourseForm({ title: "", description: "", duration: "", instructor: "" });
         showMessage("success", "Course updated");
@@ -182,8 +216,7 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: `/api/courses/${id} (DELETE)`, status: res.status, data: res.data });
 
       if (res.status === 200 || res.status === 204) {
-        // remove locally (optimistic)
-        setCourses((prev) => prev.filter((c) => c._id !== id));
+        setCourses((prev) => prev.filter((c) => (c._id || c.id) !== id));
         showMessage("success", "Course deleted");
       } else {
         showMessage("error", res.data?.message || `Delete failed (${res.status})`);
@@ -277,7 +310,7 @@ export default function AdminDashboard() {
   };
 
   const editUserStart = (u) => {
-    setEditingUserId(u._id);
+    setEditingUserId(u._id || u.id);
     setUserForm({
       name: u.name || "",
       email: u.email || "",
@@ -303,14 +336,12 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: `/api/users/${editingUserId} (PUT)`, status: res.status, data: res.data });
 
       if (res.status === 200) {
-        // backend may return updated user under different key (user / data / etc.)
         const updated = res.data?.user || res.data;
         if (updated && (updated._id || updated.id)) {
-          // use returned object
-          setUsers((prev) => prev.map((x) => (x._id === editingUserId ? { ...x, ...updated } : x)));
+          const normalized = { ...updated, _id: updated._id || updated.id };
+          setUsers((prev) => prev.map((x) => ( (x._id || x.id) === editingUserId ? { ...x, ...normalized } : x )));
         } else {
-          // backend did not return object — optimistically merge from our form payload
-          setUsers((prev) => prev.map((x) => (x._id === editingUserId ? { ...x, ...payload } : x)));
+          setUsers((prev) => prev.map((x) => ((x._id || x.id) === editingUserId ? { ...x, ...payload } : x)));
         }
 
         setEditingUserId(null);
@@ -347,7 +378,7 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: `/api/users/${userId} (DELETE)`, status: res.status, data: res.data });
 
       if (res.status === 200 || res.status === 204) {
-        setUsers((prev) => prev.filter((u) => u._id !== userId));
+        setUsers((prev) => prev.filter((u) => (u._id || u.id) !== userId));
         showMessage("success", "User deleted");
       } else {
         showMessage("error", res.data?.message || `Delete failed (${res.status})`);
@@ -376,7 +407,7 @@ export default function AdminDashboard() {
       if (res.status === 200) {
         showMessage("success", "Payment recorded");
         // update local user hasPaid if present
-        setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, hasPaid: true } : u)));
+        setUsers((prev) => prev.map((u) => ((u._id || u.id) === userId ? { ...u, hasPaid: true } : u)));
       } else {
         showMessage("error", res.data?.message || `Payment failed (${res.status})`);
       }
@@ -403,6 +434,7 @@ export default function AdminDashboard() {
   /* ------------------ RENDER ------------------ */
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      {spinnerStyles}
       <div className="max-w-7xl mx-auto">
         <header className="flex items-center justify-between mb-6">
           <div>
@@ -507,7 +539,7 @@ export default function AdminDashboard() {
 
                   <div className="flex gap-2 mt-4">
                     <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded-md">
-                      {loading ? <><span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "rgba(99,102,241,0.15)", borderTopColor: "rgb(99 102 241)" }} /> <span className="ml-2">Saving...</span></> : (editingCourseId ? "Save" : "Add Course")}
+                      {loading ? <><Spinner size={14} /> <span className="ml-2">Saving...</span></> : (editingCourseId ? "Save" : "Add Course")}
                     </button>
                     {editingCourseId && (
                       <button type="button" onClick={() => { setEditingCourseId(null); setCourseForm({ title: "", description: "", duration: "", instructor: "" }); }} className="px-4 py-2 bg-gray-200 rounded-md">
@@ -522,14 +554,14 @@ export default function AdminDashboard() {
               <section className="lg:col-span-2 bg-white p-4 rounded shadow">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold">Courses</h2>
-                  <div className="text-sm text-gray-500">{loading ? <span className="flex items-center gap-2"><span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "rgba(99,102,241,0.15)", borderTopColor: "rgb(99 102 241)" }} /> loading</span> : `${courses.length} items`}</div>
+                  <div className="text-sm text-gray-500">{loading ? <span className="flex items-center gap-2"><Spinner size={14} /> loading</span> : `${courses.length} items`}</div>
                 </div>
 
                 {!loading && courses.length === 0 && <div className="text-sm text-gray-500">No courses found. Add your first course.</div>}
 
                 <div className="space-y-3">
                   {courses.map((c) => (
-                    <article key={c._id} className="p-3 border rounded flex items-start justify-between">
+                    <article key={c._id || c.id} className="p-3 border rounded flex items-start justify-between">
                       <div>
                         <div className="font-semibold text-gray-800">{c.title}</div>
                         <p className="text-sm text-gray-600 mt-1 line-clamp-3">{c.description}</p>
@@ -538,7 +570,7 @@ export default function AdminDashboard() {
 
                       <div className="flex flex-col gap-2">
                         <button onClick={() => startCourseEdit(c)} disabled={loading} className="px-3 py-1 bg-yellow-400 rounded text-sm">Edit</button>
-                        <button onClick={() => deleteCourse(c._id)} disabled={loading} className="px-3 py-1 bg-red-500 rounded text-white text-sm">Delete</button>
+                        <button onClick={() => deleteCourse(c._id || c.id)} disabled={loading} className="px-3 py-1 bg-red-500 rounded text-white text-sm">Delete</button>
                       </div>
                     </article>
                   ))}
@@ -555,7 +587,7 @@ export default function AdminDashboard() {
                 <div className="text-sm text-gray-500">{users.length} users</div>
               </div>
 
-              {loading && <div className="text-sm text-gray-500 mb-3 flex items-center gap-2"><span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "rgba(99,102,241,0.15)", borderTopColor: "rgb(99 102 241)" }} /> Loading...</div>}
+              {loading && <div className="text-sm text-gray-500 mb-3 flex items-center gap-2"><Spinner size={14} /> Loading...</div>}
 
               {!loading && users.length === 0 && <div className="text-sm text-gray-500">No users loaded. Click "Users" to fetch or export users from server.</div>}
 
@@ -580,9 +612,9 @@ export default function AdminDashboard() {
                           <td className="p-2">{u.hasPaid ? "Yes" : "No"}</td>
                           <td className="p-2">
                             <div className="flex gap-2">
-                              <button onClick={() => simulatePayment(u._id)} disabled={loading} className="px-3 py-1 bg-green-500 text-white rounded text-sm">Simulate Payment</button>
+                              <button onClick={() => simulatePayment(u._id || u.id)} disabled={loading} className="px-3 py-1 bg-green-500 text-white rounded text-sm">Simulate Payment</button>
                               <button onClick={() => editUserStart(u)} disabled={loading} className="px-3 py-1 bg-yellow-400 rounded text-sm">Edit</button>
-                              <button onClick={() => deleteUser(u._id)} disabled={loading} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+                              <button onClick={() => deleteUser(u._id || u.id)} disabled={loading} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
                             </div>
                           </td>
                         </tr>
@@ -612,7 +644,7 @@ export default function AdminDashboard() {
                     </label>
 
                     <div className="flex gap-2 mt-3">
-                      <button type="submit" disabled={loading} className="px-3 py-1 bg-indigo-600 text-white rounded">{loading ? <span className="inline-block w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "rgba(99,102,241,0.15)", borderTopColor: "rgb(99 102 241)" }} /> : "Save"}</button>
+                      <button type="submit" disabled={loading} className="px-3 py-1 bg-indigo-600 text-white rounded">{loading ? <Spinner size={14} /> : "Save"}</button>
                       <button type="button" onClick={() => { setEditingUserId(null); setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false }); }} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
                     </div>
                   </form>
