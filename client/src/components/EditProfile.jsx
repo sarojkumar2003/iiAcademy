@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
  * - PUTs updated profile to /api/users/profile with JSON body
  */
 
-const API_BASE = "http://localhost:5000"; // use "" for same-origin ("/api/..." calls)
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 function findToken() {
   const keys = ["token", "accessToken", "access_token", "jwt", "authorization"];
