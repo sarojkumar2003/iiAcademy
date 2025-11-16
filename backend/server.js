@@ -46,6 +46,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',     // Vite dev server
+  'http://localhost:5174',
   'https://iiacademy.in',
 ];
 
