@@ -106,7 +106,7 @@ const Navbar = () => {
         {/* Desktop Links */}
         <ul className="hidden md:flex space-x-8 font-medium text-gray-700">
           <li><a href="#home" className="hover:text-blue-600">Home</a></li>
-          <li><HashLink smooth to="/#about" className="hover:text-blue-600">About</HashLink></li>
+          <li><HashLink smooth to="/about" className="hover:text-blue-600">About</HashLink></li>
           <li><HashLink smooth to="/#services" className="hover:text-blue-600">Services</HashLink></li>
           <li><HashLink smooth to="/#success" className="hover:text-blue-600">Success Story</HashLink></li>
           <li><HashLink smooth to="/#contact" className="hover:text-blue-600">Contact</HashLink></li>
