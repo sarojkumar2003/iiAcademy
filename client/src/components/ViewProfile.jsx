@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"; // change if deployed backend URL differs
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 function findToken() {
-  const keys = ["token", "accessToken", "access_token", "jwt"];
+  const keys = ["ii_token", "token", "accessToken", "access_token", "jwt"];
   for (const k of keys) {
     try {
       const v = sessionStorage.getItem(k) || localStorage.getItem(k);
       if (v) return v;
-    } catch {}
+    } catch (e) {
+      // ignore storage errors
+    }
   }
   return null;
 }
@@ -23,36 +25,58 @@ export default function ViewProfile() {
   useEffect(() => {
     const token = findToken();
     if (!token) {
+      console.warn("No token found, redirecting to login");
       navigate("/login");
       return;
     }
 
+    const url = `${API_BASE}/api/users/profile`;
+    console.log("Fetching profile from:", url);
+
     const loadProfile = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/users/profile`, {
+        const res = await fetch(url, {
           method: "GET",
           headers: {
-            "Accept": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
           },
+          // If your backend uses cookies, enable credentials:
+          // credentials: 'include'
         });
 
+        console.log("Profile fetch status:", res.status);
+
         if (!res.ok) {
+          // if 401 or 403, force relogin
           if (res.status === 401 || res.status === 403) {
-            setError("Session expired. Please log in again.");
-            sessionStorage.removeItem("token");
-            localStorage.removeItem("token");
-            setTimeout(() => navigate("/login"), 1500);
-          } else {
-            setError("Failed to fetch profile.");
+            setError("Session expired. Redirecting to login...");
+            // clear stored tokens we know about
+            ["ii_token","token","accessToken","access_token","jwt"].forEach(k=>{
+              try { sessionStorage.removeItem(k); localStorage.removeItem(k); } catch(_) {}
+            });
+            setTimeout(() => navigate("/login"), 1200);
+            return;
           }
-          setLoading(false);
+
+          // try to read error body
+          let text = "";
+          try { text = await res.text(); } catch (e) { /* ignore */ }
+          setError(`Failed to fetch profile (${res.status}). ${text ? "Server: "+text : ""}`);
           return;
         }
 
-        const data = await res.json();
+        const data = await res.json().catch(e => {
+          console.error("Invalid JSON in profile response", e);
+          return null;
+        });
 
-        // Detect structure automatically
+        if (!data) {
+          setError("Profile response not JSON or empty.");
+          return;
+        }
+
+        // Normalize various possible shapes
         let u = null;
         if (data.user) u = data.user;
         else if (data.data?.user) u = data.data.user;
@@ -60,11 +84,12 @@ export default function ViewProfile() {
         else if (data.profile) u = data.profile;
         else if (data.email) u = data;
         else if (Array.isArray(data) && data.length > 0) u = data[0];
+        else u = data;
 
         setUser(u);
       } catch (err) {
         console.error("Error fetching profile:", err);
-        setError("Network error. Please try again later.");
+        setError("Network error. Please check console and server status.");
       } finally {
         setLoading(false);
       }
