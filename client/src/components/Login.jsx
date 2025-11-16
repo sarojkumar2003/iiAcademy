@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Footer from "./Footer";
+import Navbar from "./Navbar";
 
 // Axios client (no cookies)
 const api = axios.create({
@@ -105,11 +107,13 @@ export default function Login() {
   };
 
   return (
+    
     <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-indigo-50 via-sky-50 to-violet-100">
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-indigo-300/30 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-violet-300/30 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-sky-300/30 blur-3xl" />
 
+<Navbar />
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6 py-16">
         <motion.div
           variants={cardVariants}

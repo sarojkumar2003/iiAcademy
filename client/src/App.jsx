@@ -13,6 +13,7 @@ import Choose from './components/Choose';
 import ViewProfile from './components/ViewProfile';
 import EditProfile from './components/EditProfile';
 import DeleteAccount from './components/DeleteAccount';
+import Footer from './components/Footer';
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-
+        
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<AccountRegistration />} />
 

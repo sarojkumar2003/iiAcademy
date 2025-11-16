@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import Herobanner from "./Herobanner";
 import { HashLink } from "react-router-hash-link";
-
+import character from "./../images/Char.png"
 
 export default function Hero() {
   return (
@@ -53,25 +53,92 @@ export default function Hero() {
         {/* RIGHT: Animated Circle */}
         <div className="relative z-10 flex items-center justify-center">
           {/* floating shapes */}
+
           <motion.div
-            className="absolute -left-4 -top-8 h-6 w-6 rounded-full bg-violet-500"
-            animate={{ y: [0, -12, 0] }}
+            className="absolute -top-10 left-10 h-6 w-6 rounded-full bg-violet-500"
+            animate={{ y: [0, -10, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
+
           <motion.div
-            className="absolute -right-2 top-10 h-10 w-10 rotate-45 rounded-lg bg-blue-500"
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+            className="absolute top-5 -right-10 h-8 w-8 rotate-45 rounded-lg bg-blue-500"
+            animate={{ y: [0, -14, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           />
+
           <motion.div
-            className="absolute bottom-8 left-6 h-8 w-8 rounded-lg bg-pink-500"
+            className="absolute bottom-0 left-6 h-7 w-7 rounded-md bg-pink-500"
+            animate={{ y: [0, 16, 0] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute -bottom-10 right-32 h-5 w-5 rounded-full bg-yellow-400"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute top-16 -left-10 h-9 w-9 rounded-lg bg-indigo-400"
+            animate={{ y: [0, -18, 0] }}
+            transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute bottom-16 -right-10 h-6 w-6 rounded-full bg-lime-400"
+            animate={{ y: [0, 12, 0] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute top-1/2 left-10 h-10 w-10 rotate-12 rounded-xl bg-rose-400"
+            animate={{ y: [0, -14, 0] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+
+          <motion.div
+            className="absolute top-1/3 right-16 h-6 w-6 rounded-full bg-cyan-400"
+            animate={{ y: [0, 14, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute -top-6 left-24 h-4 w-4 rounded-full bg-purple-400"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3.3, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
+          />
+
+
+          <motion.div
+            className="absolute -top-8 right-24 h-3 w-10 rounded-md bg-teal-400"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut", delay: 0.15 }}
+          />
+
+
+          <motion.div
+            className="absolute -bottom-8 left-20 h-7 w-7 rounded-md bg-orange-400"
+            animate={{ y: [0, 14, 0] }}
+            transition={{ duration: 3.7, repeat: Infinity, ease: "easeInOut", delay: 0.12 }}
+          />
+
+          <motion.div
+            className="absolute -bottom-12 left-1/2 h-5 w-5 -translate-x-1/2 rounded-full bg-green-500"
+            animate={{ y: [0, 16, 0] }}
+            transition={{ duration: 3.9, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+          />
+
+
+          <motion.div
+            className="absolute -bottom-10 right-20 h-8 w-8 rotate-45 rounded-lg bg-red-400"
             animate={{ y: [0, 18, 0] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut", delay: 0.1 }}
+            transition={{ duration: 4.3, repeat: Infinity, ease: "easeInOut", delay: 0.18 }}
           />
 
           {/* Main animated circle */}
           <motion.div
-            className="relative grid h-80 w-80 place-items-center rounded-full shadow-2xl shadow-purple-300"
+            className="relative grid h-80 w-80 place-items-center rounded-full shadow-2xl shadow-purple-300 overflow-hidden"
             style={{
               backgroundImage:
                 "radial-gradient(100% 100% at 50% 50%, rgba(129, 140, 248, 1) 0%, rgba(59, 130, 246, 1) 100%)",
@@ -79,10 +146,14 @@ export default function Hero() {
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="text-6xl">🚀</div>
-            <div className="mt-3 text-xl font-semibold text-white drop-shadow-sm">
+            <img
+              src={character}
+              alt="Hero"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            {/* <div className="mt-3 text-xl font-semibold text-white drop-shadow-sm">
               Start Your Journey
-            </div>
+            </div> */}
             <div className="pointer-events-none absolute inset-0 rounded-full bg-white/10 blur-2xl" />
           </motion.div>
         </div>
@@ -100,7 +171,7 @@ export default function Hero() {
         transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <Herobanner/>
+      <Herobanner />
     </section>
   );
 }
