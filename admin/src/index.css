@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* small input utility to keep components concise */
+.input {
+  @apply mt-1 mb-3 block w-full rounded-md border-gray-300 p-2;
+}
+.btn-primary {
+  @apply w-full py-2 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700;
+}
+.btn-ghost {
+  @apply px-3 py-1 rounded bg-gray-100 hover:bg-gray-200;
+}
+.tab {
+  @apply px-3 py-2 rounded-md bg-white border;
+}
+.tab-active {
+  @apply bg-indigo-600 text-white;
+}
