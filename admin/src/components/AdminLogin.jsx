@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // ✅ Import navigation
 
 // Backend base URL (use .env or default)
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function AdminLogin() {
   const navigate = useNavigate(); // ✅ Hook for redirect
@@ -22,7 +22,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_BASE}/api/auth/login`, form, {
+      const res = await axios.post(`${API_BASE}api/auth/login`, form, {
         headers: { "Content-Type": "application/json" },
       });
 
