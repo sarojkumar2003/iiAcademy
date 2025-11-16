@@ -128,9 +128,12 @@ export default function AdminSignup({ onSuccess }) {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <a href="/login" className="text-indigo-600 hover:underline">
+          <span
+            onClick={() => navigate("/login")} // ✅ Use navigate instead of href
+            className="text-indigo-600 hover:underline cursor-pointer"
+          >
             Login here
-          </a>
+          </span>
         </p>
       </form>
     </div>
