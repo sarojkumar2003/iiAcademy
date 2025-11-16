@@ -2,9 +2,14 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+// Normalize API base URL (supports both names and removes trailing slash)
+const RAW_API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_BASE ||
+  "http://localhost:5000";
+const API_BASE = RAW_API_BASE.replace(/\/+$/, "");
 
-/* auth header helper - checks few token keys */
+/* auth header helper - checks several token keys */
 const authHeader = () => {
   const keys = ["ii_token", "token", "accessToken", "access_token", "jwt"];
   try {
@@ -18,9 +23,8 @@ const authHeader = () => {
   return {};
 };
 
-/* Small spinner component (inline size so Tailwind dynamic classes not required) */
+/* Small spinner component (pixels) */
 function Spinner({ size = 16 }) {
-  // size is pixels
   return (
     <div
       role="status"
@@ -40,7 +44,7 @@ function Spinner({ size = 16 }) {
   );
 }
 
-/* add minimal keyframes for spin if not provided globally */
+/* add minimal keyframes for spin */
 const spinnerStyles = (
   <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 );
@@ -98,7 +102,9 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/courses", status: res.status, data: res.data });
 
       if (res.status === 200 && Array.isArray(res.data)) {
-        setCourses(res.data);
+        // normalize ids
+        const normalized = res.data.map((c) => ({ ...c, _id: c._id || c.id }));
+        setCourses(normalized);
       } else if (res.status === 401) {
         showMessage("error", "Unauthorized — please login again");
         localStorage.removeItem("ii_token");
@@ -131,7 +137,6 @@ export default function AdminDashboard() {
       if (res.status === 201 || res.status === 200) {
         const added = res.data?.course || res.data;
         if (added && (added._id || added.id)) {
-          // normalize id key
           const normalized = { ...added, _id: added._id || added.id };
           setCourses((prev) => [normalized, ...prev]);
         } else {
@@ -178,7 +183,6 @@ export default function AdminDashboard() {
 
       if (res.status === 200) {
         const updated = res.data?.course || res.data;
-        // update local list (fix: use _id)
         setCourses((prev) =>
           prev.map((c) => {
             const id = c._id || c.id;
@@ -236,7 +240,6 @@ export default function AdminDashboard() {
     setLoading(true);
     setRawResponse(null);
 
-    // Try direct /api/users first (typical admin endpoint)
     try {
       const res = await axios.get(`${API_BASE}/api/users`, {
         headers: { ...authHeader() },
@@ -245,17 +248,16 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/users", status: res.status, data: res.data });
 
       if (res.status === 200 && Array.isArray(res.data)) {
-        setUsers(res.data);
+        const normalized = res.data.map((u) => ({ ...u, _id: u._id || u.id }));
+        setUsers(normalized);
         setLoading(false);
         return;
       }
-      // If 404 or not array, fall through to fallback below
     } catch (err) {
-      // swallow — we'll try fallback endpoint
       console.debug("fetchUsers: /api/users failed, trying fallback", err.message || err);
     }
 
-    // Fallback: /api/courses/user-data (either JSON or file)
+    // Fallback: /api/courses/user-data
     try {
       const r = await axios.get(`${API_BASE}/api/courses/user-data?download=false`, {
         headers: { ...authHeader() },
@@ -264,12 +266,12 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/courses/user-data?download=false", status: r.status, data: r.data });
 
       if (r.status === 200 && Array.isArray(r.data)) {
-        setUsers(r.data);
+        const normalized = r.data.map((u) => ({ ...u, _id: u._id || u.id }));
+        setUsers(normalized);
         setLoading(false);
         return;
       }
 
-      // If server doesn't support download=false, request blob and try parse
       const blobRes = await axios.get(`${API_BASE}/api/courses/user-data`, {
         headers: { ...authHeader() },
         responseType: "blob",
@@ -282,7 +284,8 @@ export default function AdminDashboard() {
         try {
           const parsed = JSON.parse(text);
           if (Array.isArray(parsed)) {
-            setUsers(parsed);
+            const normalized = parsed.map((u) => ({ ...u, _id: u._id || u.id }));
+            setUsers(normalized);
             setLoading(false);
             return;
           }
@@ -320,7 +323,6 @@ export default function AdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ======= UPDATED saveUserEdit: ensures local update even if backend doesn't return user object =======
   const saveUserEdit = async (e) => {
     e?.preventDefault();
     if (!editingUserId) return;
@@ -339,7 +341,7 @@ export default function AdminDashboard() {
         const updated = res.data?.user || res.data;
         if (updated && (updated._id || updated.id)) {
           const normalized = { ...updated, _id: updated._id || updated.id };
-          setUsers((prev) => prev.map((x) => ( (x._id || x.id) === editingUserId ? { ...x, ...normalized } : x )));
+          setUsers((prev) => prev.map((x) => ((x._id || x.id) === editingUserId ? { ...x, ...normalized } : x)));
         } else {
           setUsers((prev) => prev.map((x) => ((x._id || x.id) === editingUserId ? { ...x, ...payload } : x)));
         }
@@ -348,11 +350,10 @@ export default function AdminDashboard() {
         setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false });
         showMessage("success", "User updated");
 
-        // attempt to re-fetch to ensure full sync (optional but recommended)
         try {
           await fetchUsers();
         } catch {
-          /* ignore fetch errors here — state already updated optimistically */
+          // ignore
         }
       } else {
         showMessage("error", res.data?.message || `Update failed (${res.status})`);
@@ -406,7 +407,6 @@ export default function AdminDashboard() {
 
       if (res.status === 200) {
         showMessage("success", "Payment recorded");
-        // update local user hasPaid if present
         setUsers((prev) => prev.map((u) => ((u._id || u.id) === userId ? { ...u, hasPaid: true } : u)));
       } else {
         showMessage("error", res.data?.message || `Payment failed (${res.status})`);
