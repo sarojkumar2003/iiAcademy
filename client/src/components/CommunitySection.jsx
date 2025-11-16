@@ -161,9 +161,7 @@ export default function CommunitySection({ enableScrollDrift = true }) {
                   enableScrollDrift={enableScrollDrift}
                 />
               ))}
-            </div>
-
-              
+            </div> 
             {/* CTA */}
                   {enableScrollDrift ? (
                     <motion.a
