@@ -47,26 +47,27 @@ export default function Footer() {
             </p>
           </div>
 
-        {/* Quick Links */}
-                  <Section title="Quick Links">
-                    <LinkItem><HashLink smooth to="/#about">
-                      About
-                    </HashLink></LinkItem>
-                    
-                    
-                    <LinkItem><HashLink smooth to="/#Services">
-                      Courses
-                    </HashLink></LinkItem>
-                    
-                    <LinkItem href="https://chat.whatsapp.com/DJQOJiiNFA18vZXd5eo8BC">Community</LinkItem>
-                  </Section>
+          {/* Quick Links */}
+          <Section title="Quick Links">
+            <LinkItem><HashLink smooth to="/#about">
+              About
+            </HashLink></LinkItem>
 
-                  {/* Resources */}
+
+            <LinkItem><HashLink smooth to="/#services">
+              Courses
+            </HashLink></LinkItem>
+
+            <LinkItem href="https://chat.whatsapp.com/DJQOJiiNFA18vZXd5eo8BC">Community</LinkItem>
+          </Section>
+
+          {/* Resources */}
           <Section title="Resources">
-            <LinkItem>Learning Path</LinkItem>
+            <LinkItem><HashLink smooth to="/#services">
+              Learning Path
+            </HashLink></LinkItem>
             <LinkItem>Student Projects</LinkItem>
-            <LinkItem>FAQs</LinkItem>
-            <LinkItem>Support</LinkItem>
+            <LinkItem> <HashLink smooth to="/#contact">FAQs</HashLink></LinkItem>
           </Section>
 
           {/* Contact Us */}

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Herobanner from "./Herobanner";
+import { HashLink } from "react-router-hash-link";
 
 
 export default function Hero() {
@@ -35,18 +36,17 @@ export default function Hero() {
 
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="#join"
+              href="https://chat.whatsapp.com/DJQOJiiNFA18vZXd5eo8BC"
               className="inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               style={{ backgroundImage: "linear-gradient(90deg, #2563eb, #4f46e5)" }}
             >
               Join Our Community Now!
             </a>
-            <a
-              href="#courses"
-              className="inline-flex items-center justify-center rounded-full border border-blue-500 px-6 py-3 text-base font-semibold text-blue-600 transition hover:bg-blue-50"
-            >
-              Explore Courses
-            </a>
+            <div>
+              <HashLink smooth to="/#services" className="inline-flex items-center justify-center rounded-full border border-blue-500 px-6 py-3 text-base font-semibold text-blue-600 transition hover:bg-blue-50 cursor-pointer">
+                Explore Courses
+              </HashLink>
+            </div>
           </div>
         </div>
 

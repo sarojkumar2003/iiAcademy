@@ -163,39 +163,40 @@ export default function CommunitySection({ enableScrollDrift = true }) {
               ))}
             </div>
 
+              
             {/* CTA */}
-            {enableScrollDrift ? (
-              <motion.a
-                href="#"
-                aria-label="Start your journey for free"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-6 py-3 text-[15px] font-medium text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                variants={driftVariants}
-                initial="initial"
-                whileInView="enter"
-                viewport={{ once: true, amount: 0.5 }}
-                animate="drift"
-                custom={dir}
-              >
-                Start Your Journey for Free
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </motion.a>
-            ) : (
-              <a
-                href="#"
-                aria-label="Start your journey for free"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-6 py-3 text-[15px] font-medium text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-              >
-                Start Your Journey for Free
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </a>
-            )}
-          </div>
+                  {enableScrollDrift ? (
+                    <motion.a
+                    href="https://chat.whatsapp.com/DJQOJiiNFA18vZXd5eo8BC"
+                    aria-label="Start your journey for free"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-6 py-3 text-[15px] font-medium text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    variants={driftVariants}
+                    initial="initial"
+                    whileInView="enter"
+                    viewport={{ once: true, amount: 0.5 }}
+                    animate="drift"
+                    custom={dir}
+                    >
+                    Start Your Journey for Free
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                    </motion.a>
+                  ) : (
+                    <a
+                    href="https://chat.whatsapp.com/DJQOJiiNFA18vZXd5eo8BC"
+                    aria-label="Start your journey for free"
+                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-6 py-3 text-[15px] font-medium text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    >
+                    Start Your Journey for Free
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                    </a>
+                  )}
+                  </div>
 
-          {/* Right column: feature card */}
+                  {/* Right column: feature card */}
           {enableScrollDrift ? (
             <motion.div
               className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-8"
