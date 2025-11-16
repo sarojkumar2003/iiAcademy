@@ -92,11 +92,11 @@ export default function AdminDashboard() {
     setLoading(true);
     setRawResponse(null);
     try {
-      const res = await axios.get(`${API_BASE}/api/courses`, {
+      const res = await axios.get(`${API_BASE}api/courses`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/courses", status: res.status, data: res.data });
+      setRawResponse({ endpoint: "api/courses", status: res.status, data: res.data });
 
       if (res.status === 200 && Array.isArray(res.data)) {
         // normalize ids
@@ -125,11 +125,11 @@ export default function AdminDashboard() {
     setRawResponse(null);
     try {
       const payload = { ...courseForm, duration: Number(courseForm.duration) || 0 };
-      const res = await axios.post(`${API_BASE}/api/courses`, payload, {
+      const res = await axios.post(`${API_BASE}api/courses`, payload, {
         headers: { ...authHeader(), "Content-Type": "application/json" },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/courses (POST)", status: res.status, data: res.data });
+      setRawResponse({ endpoint: "api/courses (POST)", status: res.status, data: res.data });
 
       if (res.status === 201 || res.status === 200) {
         const added = res.data?.course || res.data;
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("addCourse", err);
       showMessage("error", "Error adding course");
-      setRawResponse({ endpoint: "/api/courses (POST)", error: err.message });
+      setRawResponse({ endpoint: "api/courses (POST)", error: err.message });
     } finally {
       setLoading(false);
     }
@@ -172,11 +172,11 @@ export default function AdminDashboard() {
     setRawResponse(null);
     try {
       const payload = { ...courseForm, duration: Number(courseForm.duration) || 0 };
-      const res = await axios.put(`${API_BASE}/api/courses/${editingCourseId}`, payload, {
+      const res = await axios.put(`${API_BASE}api/courses/${editingCourseId}`, payload, {
         headers: { ...authHeader(), "Content-Type": "application/json" },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: `/api/courses/${editingCourseId} (PUT)`, status: res.status, data: res.data });
+      setRawResponse({ endpoint: `api/courses/${editingCourseId} (PUT)`, status: res.status, data: res.data });
 
       if (res.status === 200) {
         const updated = res.data?.course || res.data;
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("saveCourseEdit", err);
       showMessage("error", "Error updating course");
-      setRawResponse({ endpoint: `/api/courses/${editingCourseId} (PUT)`, error: err.message });
+      setRawResponse({ endpoint: `api/courses/${editingCourseId} (PUT)`, error: err.message });
     } finally {
       setLoading(false);
     }
@@ -210,11 +210,11 @@ export default function AdminDashboard() {
     setLoading(true);
     setRawResponse(null);
     try {
-      const res = await axios.delete(`${API_BASE}/api/courses/${id}`, {
+      const res = await axios.delete(`${API_BASE}api/courses/${id}`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: `/api/courses/${id} (DELETE)`, status: res.status, data: res.data });
+      setRawResponse({ endpoint: `api/courses/${id} (DELETE)`, status: res.status, data: res.data });
 
       if (res.status === 200 || res.status === 204) {
         setCourses((prev) => prev.filter((c) => (c._id || c.id) !== id));
@@ -225,7 +225,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("deleteCourse", err);
       showMessage("error", "Error deleting course");
-      setRawResponse({ endpoint: `/api/courses/${id} (DELETE)`, error: err.message });
+      setRawResponse({ endpoint: `api/courses/${id} (DELETE)`, error: err.message });
     } finally {
       setLoading(false);
     }
@@ -238,11 +238,11 @@ export default function AdminDashboard() {
     setRawResponse(null);
 
     try {
-      const res = await axios.get(`${API_BASE}/api/users`, {
+      const res = await axios.get(`${API_BASE}api/users`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/users", status: res.status, data: res.data });
+      setRawResponse({ endpoint: "api/users", status: res.status, data: res.data });
 
       if (res.status === 200 && Array.isArray(res.data)) {
         const normalized = res.data.map((u) => ({ ...u, _id: u._id || u.id }));
@@ -251,16 +251,16 @@ export default function AdminDashboard() {
         return;
       }
     } catch (err) {
-      console.debug("fetchUsers: /api/users failed, trying fallback", err.message || err);
+      console.debug("fetchUsers: api/users failed, trying fallback", err.message || err);
     }
 
     // Fallback: /api/courses/user-data
     try {
-      const r = await axios.get(`${API_BASE}/api/courses/user-data?download=false`, {
+      const r = await axios.get(`${API_BASE}api/courses/user-data?download=false`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/courses/user-data?download=false", status: r.status, data: r.data });
+      setRawResponse({ endpoint: "api/courses/user-data?download=false", status: r.status, data: r.data });
 
       if (r.status === 200 && Array.isArray(r.data)) {
         const normalized = r.data.map((u) => ({ ...u, _id: u._id || u.id }));
@@ -269,12 +269,12 @@ export default function AdminDashboard() {
         return;
       }
 
-      const blobRes = await axios.get(`${API_BASE}/api/courses/user-data`, {
+      const blobRes = await axios.get(`${API_BASE}api/courses/user-data`, {
         headers: { ...authHeader() },
         responseType: "blob",
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/courses/user-data (blob)", status: blobRes.status });
+      setRawResponse({ endpoint: "api/courses/user-data (blob)", status: blobRes.status });
 
       if (blobRes.status === 200) {
         const text = await blobRes.data.text();
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("fetchUsers fallback", err);
       showMessage("error", "Error fetching users — check backend and permissions");
-      setRawResponse({ endpoint: "/api/courses/user-data", error: err.message });
+      setRawResponse({ endpoint: "api/courses/user-data", error: err.message });
     } finally {
       setLoading(false);
     }
@@ -327,12 +327,12 @@ export default function AdminDashboard() {
     setRawResponse(null);
     try {
       const payload = { ...userForm };
-      const res = await axios.put(`${API_BASE}/api/users/${editingUserId}`, payload, {
+      const res = await axios.put(`${API_BASE}api/users/${editingUserId}`, payload, {
         headers: { ...authHeader(), "Content-Type": "application/json" },
         validateStatus: () => true,
       });
 
-      setRawResponse({ endpoint: `/api/users/${editingUserId} (PUT)`, status: res.status, data: res.data });
+      setRawResponse({ endpoint: `api/users/${editingUserId} (PUT)`, status: res.status, data: res.data });
 
       if (res.status === 200) {
         const updated = res.data?.user || res.data;
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("saveUserEdit", err);
       showMessage("error", "Error updating user — ensure admin route exists");
-      setRawResponse({ endpoint: `/api/users/${editingUserId} (PUT)`, error: err.message });
+      setRawResponse({ endpoint: `api/users/${editingUserId} (PUT)`, error: err.message });
     } finally {
       setLoading(false);
     }
@@ -369,11 +369,11 @@ export default function AdminDashboard() {
     setLoading(true);
     setRawResponse(null);
     try {
-      const res = await axios.delete(`${API_BASE}/api/users/${userId}`, {
+      const res = await axios.delete(`${API_BASE}api/users/${userId}`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: `/api/users/${userId} (DELETE)`, status: res.status, data: res.data });
+      setRawResponse({ endpoint: `api/users/${userId} (DELETE)`, status: res.status, data: res.data });
 
       if (res.status === 200 || res.status === 204) {
         setUsers((prev) => prev.filter((u) => (u._id || u.id) !== userId));
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("deleteUser", err);
       showMessage("error", "Error deleting user");
-      setRawResponse({ endpoint: `/api/users/${userId} (DELETE)`, error: err.message });
+      setRawResponse({ endpoint: `api/users/${userId} (DELETE)`, error: err.message });
     } finally {
       setLoading(false);
     }
@@ -396,11 +396,11 @@ export default function AdminDashboard() {
     setRawResponse(null);
     try {
       const payload = { userId, amount: 200, transactionId: `tx_${Date.now()}` };
-      const res = await axios.post(`${API_BASE}/api/courses/payment`, payload, {
+      const res = await axios.post(`${API_BASE}api/courses/payment`, payload, {
         headers: { ...authHeader(), "Content-Type": "application/json" },
         validateStatus: () => true,
       });
-      setRawResponse({ endpoint: "/api/courses/payment (POST)", status: res.status, data: res.data });
+      setRawResponse({ endpoint: "api/courses/payment (POST)", status: res.status, data: res.data });
 
       if (res.status === 200) {
         showMessage("success", "Payment recorded");
@@ -411,7 +411,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("simulatePayment", err);
       showMessage("error", "Error simulating payment");
-      setRawResponse({ endpoint: "/api/courses/payment", error: err.message });
+      setRawResponse({ endpoint: "api/courses/payment", error: err.message });
     } finally {
       setLoading(false);
     }
