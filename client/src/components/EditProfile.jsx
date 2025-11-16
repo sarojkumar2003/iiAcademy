@@ -1,19 +1,19 @@
+// client/src/components/EditProfile.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 /**
  * Robust EditProfile component
- * - Detects token in session/local storage or cookie
- * - Accepts several response shapes from GET /api/users/profile
- * - PUTs updated profile to /api/users/profile with JSON body
+ * - Normalizes API base URL (removes trailing slash)
+ * - Detects token in session/local storage or cookie (includes ii_token)
+ * - GETs profile from /api/users/profile and PUTs updates
  */
 
-// const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
+const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE = RAW_API_BASE.replace(/\/+$/, ""); // remove trailing slash
 
 function findToken() {
-  const keys = ["token", "accessToken", "access_token", "jwt", "authorization"];
+  const keys = ["ii_token", "token", "accessToken", "access_token", "jwt", "authorization"];
   try {
     for (const k of keys) {
       const v = sessionStorage.getItem(k);
@@ -26,43 +26,51 @@ function findToken() {
       if (v) return v;
     }
   } catch {}
-  if (typeof document !== "undefined") {
-    const m = document.cookie.match(/(?:^|;\s*)(token|accessToken|jwt)=([^;]+)/);
-    if (m) return decodeURIComponent(m[2]);
-  }
+  try {
+    if (typeof document !== "undefined") {
+      // look for cookie names token/accessToken/jwt/ii_token
+      const m = document.cookie.match(/(?:^|;\s*)(ii_token|token|accessToken|jwt)=([^;]+)/);
+      if (m) return decodeURIComponent(m[2]);
+    }
+  } catch {}
   return null;
+}
+
+function stripBearer(t) {
+  if (!t) return t;
+  if (typeof t !== "string") return t;
+  return t.toLowerCase().startsWith("bearer ") ? t.slice(7) : t;
 }
 
 export default function EditProfile() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState(""); // show email (read-only)
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    const token = findToken();
+    const tokenRaw = findToken();
+    const token = stripBearer(tokenRaw);
+
     if (!token) {
       navigate("/login");
       return;
     }
 
-    const effectiveToken = typeof token === "string" && token.toLowerCase().startsWith("bearer ")
-      ? token.slice(7)
-      : token;
-
+    const url = `${API_BASE}/api/users/profile`;
     const loadProfile = async () => {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`${API_BASE}/api/users/profile`, {
+        const res = await fetch(url, {
           method: "GET",
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${effectiveToken}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -70,22 +78,50 @@ export default function EditProfile() {
 
         if (res.status === 401 || res.status === 403) {
           setError("Session expired. Redirecting to login...");
-          try { sessionStorage.removeItem("token"); } catch {}
-          try { localStorage.removeItem("token"); } catch {}
-          setTimeout(() => navigate("/login"), 1000);
+          try { sessionStorage.removeItem("ii_token"); } catch {}
+          try { localStorage.removeItem("ii_token"); } catch {}
+          setTimeout(() => navigate("/login"), 900);
           return;
+        }
+
+        if (res.status === 404) {
+          // maybe backend uses /api/auth/me — try fallback
+          const fallbackUrl = `${API_BASE}/api/auth/me`;
+          const fb = await fetch(fallbackUrl, {
+            method: "GET",
+            headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+          });
+          if (!fb.ok) {
+            setError(`Profile not found (404).`);
+            setLoading(false);
+            return;
+          }
+          const fbText = await fb.text();
+          const fbData = fbText ? JSON.parse(fbText) : null;
+          const ufb = fbData?.user || fbData?.data || fbData || null;
+          if (ufb) {
+            setName(ufb.name || "");
+            setPhoneNumber(ufb.phoneNumber || ufb.phone || "");
+            setEmail(ufb.email || "");
+            setLoading(false);
+            return;
+          } else {
+            setError("Profile response unexpected from fallback endpoint.");
+            setLoading(false);
+            return;
+          }
         }
 
         const text = await res.text();
         let data;
         try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
-        // Normalize many shapes into user object
+        // Normalize response shapes
         let user = null;
         if (data && typeof data === "object") {
           if (data.user && typeof data.user === "object") user = data.user;
           else if (data.data && typeof data.data === "object") user = data.data.user || data.data;
-          else if (data.email || data.name) user = data; // direct user object
+          else if (data.email || data.name) user = data; // direct object
           else if (data.payload && typeof data.payload === "object") user = data.payload;
         }
 
@@ -96,20 +132,20 @@ export default function EditProfile() {
           return;
         }
 
-        // populate form fields
-        setName(user.name || user.fullName || user.username || "");
-        setPhoneNumber(user.phoneNumber || user.phone || "");
-        setEmail(user.email || "");
+        if (mounted) {
+          setName(user.name || user.fullName || user.username || "");
+          setPhoneNumber(user.phoneNumber || user.phone || "");
+          setEmail(user.email || "");
+        }
       } catch (err) {
         console.error("EditProfile fetch error:", err);
-        setError("Network error while loading profile.");
+        setError("Network error while loading profile. Check CORS or server status.");
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
     loadProfile();
-
     return () => { mounted = false; };
   }, [navigate]);
 
@@ -118,7 +154,8 @@ export default function EditProfile() {
     setError("");
     setSuccess("");
 
-    const token = findToken();
+    const tokenRaw = findToken();
+    const token = stripBearer(tokenRaw);
     if (!token) {
       navigate("/login");
       return;
@@ -129,25 +166,21 @@ export default function EditProfile() {
       return;
     }
 
-    // basic phone validation (optional)
     const phoneDigits = phoneNumber.replace(/\D/g, "");
     if (phoneDigits.length < 7) {
       setError("Please enter a valid phone number.");
       return;
     }
 
-    const effectiveToken = typeof token === "string" && token.toLowerCase().startsWith("bearer ")
-      ? token.slice(7)
-      : token;
-
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/users/profile`, {
+      const url = `${API_BASE}/api/users/profile`;
+      const res = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${effectiveToken}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name: name.trim(), phoneNumber: phoneNumber.trim() }),
       });
@@ -159,9 +192,9 @@ export default function EditProfile() {
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           setError("Session expired. Redirecting to login...");
-          try { sessionStorage.removeItem("token"); } catch {}
-          try { localStorage.removeItem("token"); } catch {}
-          setTimeout(() => navigate("/login"), 1000);
+          try { sessionStorage.removeItem("ii_token"); } catch {}
+          try { localStorage.removeItem("ii_token"); } catch {}
+          setTimeout(() => navigate("/login"), 900);
           return;
         }
         setError(data?.message || `Update failed (status ${res.status})`);
@@ -170,7 +203,7 @@ export default function EditProfile() {
       }
 
       setSuccess("Profile updated successfully.");
-      // Optionally redirect back to view profile after short delay
+      // optional: refresh or redirect after a short delay
       setTimeout(() => navigate("/profile"), 900);
     } catch (err) {
       console.error("EditProfile submit error:", err);
@@ -199,6 +232,7 @@ export default function EditProfile() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              required
             />
           </div>
 
@@ -210,6 +244,7 @@ export default function EditProfile() {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              required
             />
           </div>
 
@@ -222,7 +257,7 @@ export default function EditProfile() {
         <div className="mt-6">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-60"
             disabled={loading}
           >
             {loading ? "Saving..." : "Save Changes"}
