@@ -91,7 +91,7 @@ export default function FAQSection({ supportEmail = "abc@gmail.com" }) {
   };
 
   return (
-    <section id="Contact" className="relative w-full bg-gradient-to-b from-violet-50 to-white">
+    <section id="contact" className="relative w-full bg-gradient-to-b from-violet-50 to-white">
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <header className="text-center">
           <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">

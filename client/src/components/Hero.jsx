@@ -4,7 +4,7 @@ import Herobanner from "./Herobanner";
 
 export default function Hero() {
   return (
-    <section
+    <section id="home"
       className="relative min-h-[100vh] w-full overflow-hidden"
       style={{
         background: "linear-gradient(135deg, #ffffff 0%, #e0ecff 40%, #d2d4ff 100%)",
