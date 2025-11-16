@@ -92,7 +92,7 @@ export default function AdminDashboard() {
     setLoading(true);
     setRawResponse(null);
     try {
-      const res = await axios.get(`${API_BASE}/api/courses`, {
+      const res = await axios.get(`${API_BASE}api/courses`, {
         headers: { ...authHeader() },
         validateStatus: () => true,
       });
