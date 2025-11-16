@@ -1,13 +1,10 @@
-// client/src/components/AdminSignup.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-const RAW_API_BASE = import.meta.env.VITE_API_BASE_URL;
-const API_BASE = RAW_API_BASE.replace(/\/+$/, ""); // remove trailing slash
+// Backend base URL (set VITE_API_BASE in .env or fallback to localhost)
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function AdminSignup({ onSuccess }) {
-  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -18,58 +15,35 @@ export default function AdminSignup({ onSuccess }) {
   const [msg, setMsg] = useState(null);
 
   const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const validate = () => {
-    if (!form.name.trim()) return "Please enter your full name.";
-    if (!form.email.trim()) return "Please enter an email address.";
-    // simple email check
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) return "Please enter a valid email address.";
-    if (!form.phoneNumber.trim()) return "Please enter a phone number.";
-    if (form.password.length < 6) return "Password should be at least 6 characters.";
-    return null;
-  };
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg(null);
-    const vErr = validate();
-    if (vErr) {
-      setMsg({ type: "error", text: vErr });
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // NOTE: backend should validate role assignment. Setting role here is only a convenience.
+      // force role to admin (frontend default)
       const payload = { ...form, role: "admin" };
 
+      // send request
       const res = await axios.post(`${API_BASE}api/auth/register`, payload, {
         headers: { "Content-Type": "application/json" },
-        validateStatus: () => true,
-      });a
+        validateStatus: () => true, // we'll handle status manually
+      });
 
+      // handle common responses
       if (res.status === 201 || (res.status === 200 && res.data?.token)) {
         if (res.data?.token) {
-          try {
-            localStorage.setItem("ii_token", res.data.token);
-          } catch (e) {
-            console.warn("Failed to store token in localStorage:", e);
-          }
+          localStorage.setItem("ii_token", res.data.token);
         }
-
         setMsg({ type: "success", text: "Admin registered successfully!" });
         if (typeof onSuccess === "function") onSuccess();
-
-        // navigate to dashboard after short delay so user sees success message
-        setTimeout(() => navigate("/dashboard"), 900);
       } else {
         const errorMsg = res.data?.message || `Registration failed (${res.status})`;
         setMsg({ type: "error", text: errorMsg });
       }
     } catch (err) {
-      console.error("AdminSignup error:", err);
       setMsg({
         type: "error",
         text:
@@ -87,7 +61,6 @@ export default function AdminSignup({ onSuccess }) {
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-md bg-white p-8 rounded-lg shadow-md"
-        noValidate
       >
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Admin Registration
@@ -95,8 +68,11 @@ export default function AdminSignup({ onSuccess }) {
 
         {msg && (
           <div
-            role="alert"
-            className={`p-3 mb-4 rounded ${msg.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}
+            className={`p-3 mb-4 rounded ${
+              msg.type === "error"
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
           >
             {msg.text}
           </div>
@@ -152,13 +128,13 @@ export default function AdminSignup({ onSuccess }) {
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/login")}
+          <a
+            href="#"
             className="text-indigo-600 hover:underline"
+            onClick={() => (window.location.href = "/login")}
           >
             Login here
-          </button>
+          </a>
         </p>
       </form>
     </div>
