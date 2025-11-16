@@ -61,9 +61,6 @@ export default function AdminDashboard() {
   const [rawResponse, setRawResponse] = useState(null);
   const [showDebug, setShowDebug] = useState(false);
 
-  // Current logged-in user (used to show role)
-  const [currentUser, setCurrentUser] = useState(null);
-
   // Course form
   const [courseForm, setCourseForm] = useState({
     title: "",
@@ -75,40 +72,13 @@ export default function AdminDashboard() {
 
   // User edit form
   const [editingUserId, setEditingUserId] = useState(null);
-  const [userForm, setUserForm] = useState({ name: "", email: "", phoneNumber: "", hasPaid: false, role: "" });
+  const [userForm, setUserForm] = useState({ name: "", email: "", phoneNumber: "", hasPaid: false });
 
-  // Auth guard - redirect if no token
+  // Auth guard
   useEffect(() => {
     const token = localStorage.getItem("ii_token") || localStorage.getItem("token");
     if (!token) navigate("/login", { replace: true });
     // eslint-disable-next-line
-  }, []);
-
-  // Fetch current user profile to get role
-  const fetchCurrentUser = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/users/profile`, {
-        headers: { ...authHeader() },
-        validateStatus: () => true,
-      });
-      // normalize likely response shapes
-      const payload = res.data;
-      let u = null;
-      if (!payload) u = null;
-      else if (payload.user) u = payload.user;
-      else if (payload.data && payload.data.user) u = payload.data.user;
-      else if (payload.data && (payload.data.name || payload.data.email)) u = payload.data;
-      else if (payload.name || payload.email) u = payload;
-      else if (payload.profile) u = payload.profile;
-      // Normalize role key name variations
-      if (u) {
-        u.role = u.role || u.userRole || u.roleName || "user";
-        setCurrentUser({ ...u, _id: u._id || u.id });
-      }
-    } catch (err) {
-      // silent - currentUser stays null
-      console.debug("fetchCurrentUser error", err?.message || err);
-    }
   }, []);
 
   // small toast helper
@@ -275,7 +245,7 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/users", status: res.status, data: res.data });
 
       if (res.status === 200 && Array.isArray(res.data)) {
-        const normalized = res.data.map((u) => ({ ...u, _id: u._id || u.id, role: u.role || u.userRole || "user" }));
+        const normalized = res.data.map((u) => ({ ...u, _id: u._id || u.id }));
         setUsers(normalized);
         setLoading(false);
         return;
@@ -293,7 +263,7 @@ export default function AdminDashboard() {
       setRawResponse({ endpoint: "/api/courses/user-data?download=false", status: r.status, data: r.data });
 
       if (r.status === 200 && Array.isArray(r.data)) {
-        const normalized = r.data.map((u) => ({ ...u, _id: u._id || u.id, role: u.role || u.userRole || "user" }));
+        const normalized = r.data.map((u) => ({ ...u, _id: u._id || u.id }));
         setUsers(normalized);
         setLoading(false);
         return;
@@ -311,7 +281,7 @@ export default function AdminDashboard() {
         try {
           const parsed = JSON.parse(text);
           if (Array.isArray(parsed)) {
-            const normalized = parsed.map((u) => ({ ...u, _id: u._id || u.id, role: u.role || u.userRole || "user" }));
+            const normalized = parsed.map((u) => ({ ...u, _id: u._id || u.id }));
             setUsers(normalized);
             setLoading(false);
             return;
@@ -346,7 +316,6 @@ export default function AdminDashboard() {
       email: u.email || "",
       phoneNumber: u.phoneNumber || "",
       hasPaid: !!u.hasPaid,
-      role: u.role || u.userRole || "user",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -368,14 +337,14 @@ export default function AdminDashboard() {
       if (res.status === 200) {
         const updated = res.data?.user || res.data;
         if (updated && (updated._id || updated.id)) {
-          const normalized = { ...updated, _id: updated._id || updated.id, role: updated.role || updated.userRole || payload.role || "user" };
+          const normalized = { ...updated, _id: updated._id || updated.id };
           setUsers((prev) => prev.map((x) => ((x._id || x.id) === editingUserId ? { ...x, ...normalized } : x)));
         } else {
           setUsers((prev) => prev.map((x) => ((x._id || x.id) === editingUserId ? { ...x, ...payload } : x)));
         }
 
         setEditingUserId(null);
-        setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false, role: "" });
+        setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false });
         showMessage("success", "User updated");
 
         try {
@@ -454,11 +423,10 @@ export default function AdminDashboard() {
     navigate("/login");
   };
 
-  // initial load: fetch current user & courses
+  // initial load
   useEffect(() => {
-    fetchCurrentUser();
     fetchCourses();
-  }, [fetchCourses, fetchCurrentUser]);
+  }, [fetchCourses]);
 
   /* ------------------ RENDER ------------------ */
   return (
@@ -469,17 +437,6 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-2xl font-bold">IIAcademy Admin</h1>
             <p className="text-sm text-gray-600">Manage courses, users and payments</p>
-            {/* Show current user's role */}
-            {currentUser && (
-              <div className="mt-2 text-sm">
-                Signed in as{" "}
-                <strong>{currentUser.name || currentUser.email}</strong>
-                {" — "}
-                <span className={`inline-block ml-1 px-2 py-0.5 rounded text-xs ${currentUser.role === "admin" ? "bg-indigo-100 text-indigo-700" : "bg-gray-100 text-gray-700"}`}>
-                  {currentUser.role}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -639,7 +596,6 @@ export default function AdminDashboard() {
                         <th className="p-2">Name</th>
                         <th className="p-2">Email</th>
                         <th className="p-2">Phone</th>
-                        <th className="p-2">Role</th> {/* Role column */}
                         <th className="p-2">Paid</th>
                         <th className="p-2">Actions</th>
                       </tr>
@@ -650,7 +606,6 @@ export default function AdminDashboard() {
                           <td className="p-2">{u.name || "-"}</td>
                           <td className="p-2">{u.email}</td>
                           <td className="p-2">{u.phoneNumber || "-"}</td>
-                          <td className="p-2"><span className="inline-block px-2 py-0.5 text-xs rounded bg-gray-100 text-gray-700">{u.role || u.userRole || "user"}</span></td>
                           <td className="p-2">{u.hasPaid ? "Yes" : "No"}</td>
                           <td className="p-2">
                             <div className="flex gap-2">
@@ -680,13 +635,6 @@ export default function AdminDashboard() {
                     <label className="block text-sm mt-2">Phone</label>
                     <input className="w-full p-2 border rounded mt-1" value={userForm.phoneNumber} onChange={(e) => setUserForm({ ...userForm, phoneNumber: e.target.value })} />
 
-                    <label className="block text-sm mt-2">Role</label>
-                    <select className="w-full p-2 border rounded mt-1" value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}>
-                      <option value="user">user</option>
-                      <option value="admin">admin</option>
-                      <option value="instructor">instructor</option>
-                    </select>
-
                     <label className="flex items-center gap-2 mt-2">
                       <input type="checkbox" checked={userForm.hasPaid} onChange={(e) => setUserForm({ ...userForm, hasPaid: e.target.checked })} />
                       <span className="text-sm">Has Paid</span>
@@ -694,7 +642,7 @@ export default function AdminDashboard() {
 
                     <div className="flex gap-2 mt-3">
                       <button type="submit" disabled={loading} className="px-3 py-1 bg-indigo-600 text-white rounded">{loading ? <Spinner size={14} /> : "Save"}</button>
-                      <button type="button" onClick={() => { setEditingUserId(null); setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false, role: "" }); }} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
+                      <button type="button" onClick={() => { setEditingUserId(null); setUserForm({ name: "", email: "", phoneNumber: "", hasPaid: false }); }} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
                     </div>
                   </form>
                 </div>
@@ -718,7 +666,6 @@ export default function AdminDashboard() {
                 <div className="text-xs text-gray-500 mb-2">Last raw response</div>
                 <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded max-h-64 overflow-auto">{JSON.stringify(rawResponse, null, 2)}</pre>
                 <div className="mt-2 text-xs text-gray-500">Local token present: {localStorage.getItem("ii_token") ? "yes" : "no"}</div>
-                <div className="mt-2 text-xs text-gray-500">Current user role: {currentUser?.role || "unknown"}</div>
               </div>
             )}
           </div>
