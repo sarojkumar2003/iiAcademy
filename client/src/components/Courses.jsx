@@ -29,46 +29,41 @@ export default function Courses() {
   };
 
   return (
-    <section id="services" className="w-full py-16 bg-gradient-to-b from-white to-blue-50">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <h2 className="text-4xl font-bold text-gray-900">Explore Our Courses</h2>
-        <p className="text-gray-600 mt-2">Choose your path and start learning</p>
+    <section id="services" className="courses-section">
+      <div className="courses-inner">
+        <h2 className="courses-title">Explore Our Courses</h2>
+        <p className="courses-subtitle">Choose your path and start learning</p>
 
-        {/* Course Cards */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="courses-grid">
           {courses.map((course, index) => (
-            <div
+            <article
               key={index}
               onClick={() => handleCardClick(course.link)}
-              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1"
+              className="course-card"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === "Enter" ? handleCardClick(course.link) : null)}
             >
-              {/* Icon */}
-              <div className="text-4xl">{course.icon}</div>
+              <div className="course-icon">{course.icon}</div>
 
-              {/* Title & Description */}
-              <h3 className="text-2xl font-semibold mt-4">{course.title}</h3>
-              <p className="text-gray-600 mt-2">{course.desc}</p>
+              <h3 className="course-title">{course.title}</h3>
+              <p className="course-desc">{course.desc}</p>
 
-              {/* Extra Info */}
-              <div className="mt-4 text-sm text-gray-600">
-                <p><strong>Duration:</strong> {course.duration}</p>
-                <p><strong>Level:</strong> {course.level}</p>
-                <p className="mt-2"><strong>Tools:</strong> {course.tools.join(", ")}</p>
+              <div className="course-info">
+                <p><span className="label">Duration:</span> {course.duration}</p>
+                <p><span className="label">Level:</span> {course.level}</p>
+                <p className="course-tools"><span className="label">Tools:</span> {course.tools.join(", ")}</p>
               </div>
 
-              {/* Subtle footer */}
-              <div className="mt-5 text-blue-600 font-medium hover:underline">
-                Learn More →
-              </div>
-            </div>
+              <div className="course-footer">Learn More →</div>
+            </article>
           ))}
         </div>
-        <div>
-        <h1>Verify Certificates</h1>
+
+        <div className="verify-section">
+          <h1>Verify Certificates</h1>
+        </div>
       </div>
-      </div>
-      
     </section>
-    
   );
 }
