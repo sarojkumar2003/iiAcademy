@@ -14,7 +14,7 @@ import ViewProfile from './components/ViewProfile';
 import EditProfile from './components/EditProfile';
 import DeleteAccount from './components/DeleteAccount';
 import Footer from './components/Footer';
-
+import CertificateVerifier from './components/CertificateVerifierFull';
 
 function App() {
   return (
@@ -36,6 +36,8 @@ function App() {
         <Route path="/profile" element={<ViewProfile />} />
         <Route path="/profile/edit" element={<EditProfile />} />
         <Route path="/profile/delete" element={<DeleteAccount />} />
+
+        <Route path="/certificate-verification" element={<CertificateVerifier />} />
 
        
       </Routes>

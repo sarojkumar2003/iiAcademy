@@ -155,11 +155,11 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white py-4 px-6 space-y-4 shadow-lg">
-          <a href="#home" className="block text-gray-700 hover:text-blue-600">Home</a>
+          {/* <a href="#home" className="block text-gray-700 hover:text-blue-600">Home</a>
           <a href="#about" className="block text-gray-700 hover:text-blue-600">About</a>
           <a href="#services" className="block text-gray-700 hover:text-blue-600">Services</a>
           <a href="#success" className="block text-gray-700 hover:text-blue-600">Success Story</a>
-          <a href="#contact" className="block text-gray-700 hover:text-blue-600">Contact</a>
+          <a href="#contact" className="block text-gray-700 hover:text-blue-600">Contact</a> */}
 
           {loading ? (
             <div className="text-gray-500">Loading...</div>

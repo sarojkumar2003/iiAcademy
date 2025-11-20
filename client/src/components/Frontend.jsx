@@ -76,7 +76,7 @@ export default function Frontend() {
               <button
                 onClick={handleEnroll}
                 data-course-id="002"
-                data-course-name="Python Programming Course"
+                data-course-name="Frontend Development Program"
                 data-course-amount="50000"
                 className="enroll-button bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition"
               >
@@ -132,7 +132,7 @@ export default function Frontend() {
             </div>
 
             <div className="transform hover:scale-105 transition duration-500">
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">Python Programming Course</h1>
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">Frontend Development Program</h1>
               <p className="text-xl md:text-2xl text-white mb-8 animate-slide-up">Step into the world of possibilities!</p>
 
               <div className="space-y-4">

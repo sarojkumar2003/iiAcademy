@@ -24,44 +24,57 @@ export default function Courses() {
     },
   ];
 
+  // ⭐ Check login before opening course
   const handleCardClick = (path) => {
-    navigate(path); // Navigate to that course page
+    const user = localStorage.getItem("user");
+
+    if (!user) {
+      navigate("/login");  // redirect to login
+      return;
+    }
+
+    navigate(path); // open course page
   };
 
   return (
-    <section id="services" className="courses-section">
-      <div className="courses-inner">
-        <h2 className="courses-title">Explore Our Courses</h2>
-        <p className="courses-subtitle">Choose your path and start learning</p>
+    <section id="services" className="w-full py-16 bg-gradient-to-b from-white to-blue-50">
+      <div className="max-w-5xl mx-auto px-6 text-center">
+        <h2 className="text-4xl font-bold text-gray-900">Explore Our Courses</h2>
+        <p className="text-gray-600 mt-2">Choose your path and start learning</p>
 
-        <div className="courses-grid">
+        {/* Course Cards */}
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
           {courses.map((course, index) => (
-            <article
+            <div
               key={index}
               onClick={() => handleCardClick(course.link)}
-              className="course-card"
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === "Enter" ? handleCardClick(course.link) : null)}
+              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1"
             >
-              <div className="course-icon">{course.icon}</div>
+              <div className="text-4xl">{course.icon}</div>
 
-              <h3 className="course-title">{course.title}</h3>
-              <p className="course-desc">{course.desc}</p>
+              <h3 className="text-2xl font-semibold mt-4">{course.title}</h3>
+              <p className="text-gray-600 mt-2">{course.desc}</p>
 
-              <div className="course-info">
-                <p><span className="label">Duration:</span> {course.duration}</p>
-                <p><span className="label">Level:</span> {course.level}</p>
-                <p className="course-tools"><span className="label">Tools:</span> {course.tools.join(", ")}</p>
+              <div className="mt-4 text-sm text-gray-600">
+                <p><strong>Duration:</strong> {course.duration}</p>
+                <p><strong>Level:</strong> {course.level}</p>
+                <p className="mt-2"><strong>Tools:</strong> {course.tools.join(", ")}</p>
               </div>
 
-              <div className="course-footer">Learn More →</div>
-            </article>
+              <div className="mt-5 text-blue-600 font-medium hover:underline">
+                Learn More →
+              </div>
+            </div>
           ))}
         </div>
 
         <div className="verify-section">
-          <h1>Verify Certificates</h1>
+          <button
+            onClick={() => navigate("/certificate-verification")}
+            className="mt-16 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Verify Your Certificate Now
+          </button>
         </div>
       </div>
     </section>
