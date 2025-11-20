@@ -24,16 +24,46 @@ export default function Courses() {
     },
   ];
 
-  // ⭐ Check login before opening course
-  const handleCardClick = (path) => {
-    const user = localStorage.getItem("user");
+  // Robust login-check: accepts valid non-empty strings and JSON objects stored as string
+  const isLoggedIn = () => {
+    const rawUser = localStorage.getItem("user");
+    const rawToken = localStorage.getItem("token");
 
-    if (!user) {
-      navigate("/login");  // redirect to login
-      return;
+    const validString = (s) =>
+      typeof s === "string" && s !== "" && s !== "null" && s !== "undefined";
+
+    if (validString(rawToken)) return true;
+    if (!validString(rawUser)) return false;
+
+    // If user is a JSON string like '{"id":1,...}', treat it as logged-in
+    if (rawUser.startsWith("{") || rawUser.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(rawUser);
+        return !!parsed; // truthy object
+      } catch {
+        // not valid JSON, but it's a non-empty string (e.g. "loggedin")
+        return true;
+      }
     }
 
-    navigate(path); // open course page
+    return true;
+  };
+
+  // Handle both mouse click and keyboard (Enter/Space)
+  const handleCardActivate = (path) => {
+    if (!isLoggedIn()) {
+      // optionally show toast here
+      navigate("/login");
+      return;
+    }
+    navigate(path);
+  };
+
+  const onCardKeyDown = (e, path) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardActivate(path);
+    }
   };
 
   return (
@@ -47,8 +77,12 @@ export default function Courses() {
           {courses.map((course, index) => (
             <div
               key={index}
-              onClick={() => handleCardClick(course.link)}
-              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1"
+              role="button"
+              tabIndex={0}
+              onClick={() => handleCardActivate(course.link)}
+              onKeyDown={(e) => onCardKeyDown(e, course.link)}
+              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              aria-label={`Open ${course.title} course`}
             >
               <div className="text-4xl">{course.icon}</div>
 
@@ -78,6 +112,5 @@ export default function Courses() {
         </div>
       </div>
     </section>
-    
   );
 }
