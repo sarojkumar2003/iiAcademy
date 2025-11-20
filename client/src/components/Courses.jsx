@@ -24,46 +24,8 @@ export default function Courses() {
     },
   ];
 
-  // Robust login-check: accepts valid non-empty strings and JSON objects stored as string
-  const isLoggedIn = () => {
-    const rawUser = localStorage.getItem("user");
-    const rawToken = localStorage.getItem("token");
-
-    const validString = (s) =>
-      typeof s === "string" && s !== "" && s !== "null" && s !== "undefined";
-
-    if (validString(rawToken)) return true;
-    if (!validString(rawUser)) return false;
-
-    // If user is a JSON string like '{"id":1,...}', treat it as logged-in
-    if (rawUser.startsWith("{") || rawUser.startsWith("[")) {
-      try {
-        const parsed = JSON.parse(rawUser);
-        return !!parsed; // truthy object
-      } catch {
-        // not valid JSON, but it's a non-empty string (e.g. "loggedin")
-        return true;
-      }
-    }
-
-    return true;
-  };
-
-  // Handle both mouse click and keyboard (Enter/Space)
-  const handleCardActivate = (path) => {
-    if (!isLoggedIn()) {
-      // optionally show toast here
-      navigate("/login");
-      return;
-    }
-    navigate(path);
-  };
-
-  const onCardKeyDown = (e, path) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleCardActivate(path);
-    }
+  const handleCardClick = (path) => {
+    navigate(path); // Navigate to that course page
   };
 
   return (
@@ -77,38 +39,29 @@ export default function Courses() {
           {courses.map((course, index) => (
             <div
               key={index}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleCardActivate(course.link)}
-              onKeyDown={(e) => onCardKeyDown(e, course.link)}
-              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              aria-label={`Open ${course.title} course`}
+              onClick={() => handleCardClick(course.link)}
+              className="cursor-pointer bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 transform hover:-translate-y-1"
             >
+              {/* Icon */}
               <div className="text-4xl">{course.icon}</div>
 
+              {/* Title & Description */}
               <h3 className="text-2xl font-semibold mt-4">{course.title}</h3>
               <p className="text-gray-600 mt-2">{course.desc}</p>
 
+              {/* Extra Info */}
               <div className="mt-4 text-sm text-gray-600">
                 <p><strong>Duration:</strong> {course.duration}</p>
                 <p><strong>Level:</strong> {course.level}</p>
                 <p className="mt-2"><strong>Tools:</strong> {course.tools.join(", ")}</p>
               </div>
 
+              {/* Subtle footer */}
               <div className="mt-5 text-blue-600 font-medium hover:underline">
                 Learn More →
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="verify-section">
-          <button
-            onClick={() => navigate("/certificate-verification")}
-            className="mt-16 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Verify Your Certificate Now
-          </button>
         </div>
       </div>
     </section>
