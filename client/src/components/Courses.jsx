@@ -64,6 +64,10 @@ export default function Courses() {
           ))}
         </div>
       </div>
+      <div>
+        <h1>Verify Certificates</h1>
+      </div>
     </section>
+    
   );
 }
