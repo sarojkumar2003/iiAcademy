@@ -15,6 +15,8 @@ import EditProfile from './components/EditProfile';
 import DeleteAccount from './components/DeleteAccount';
 import Footer from './components/Footer';
 import CertificateVerifier from './components/CertificateVerifierFull';
+import InquiryForm from './components/InquiryForm';
+import FrontendInquiry from './components/FrontendInquiry';
 
 function App() {
   return (
@@ -38,6 +40,9 @@ function App() {
         <Route path="/profile/delete" element={<DeleteAccount />} />
 
         <Route path="/certificate-verification" element={<CertificateVerifier />} />
+        <Route path="/InquiryForm" element={<InquiryForm />} />
+        <Route path="/frontend-inquiry" element={<FrontendInquiry />} />
+
 
        
       </Routes>

@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 
+
 /**
  * Backend.jsx
  * - Page for the Backend Development course
@@ -33,6 +34,7 @@ export default function Backend() {
   // Enroll handler: saves an enrollment stub and navigates to a course dashboard route.
   const handleEnroll = (e) => {
     // Allow calling without an event (e.g., from other handlers)
+    e?.preventDefault?.();
     const dataset = e?.currentTarget?.dataset || {};
     const id = dataset.courseId || "backend";
     const name = dataset.courseName || "Backend Development Program";
@@ -47,14 +49,15 @@ export default function Backend() {
       status: "active",
     };
 
+    // Persist enrollment then redirect to Inquiry form
     try {
       localStorage.setItem(enrolledKey, JSON.stringify(enrolledObj));
     } catch (err) {
       console.warn("Could not save enrollment to localStorage:", err);
     }
 
-    // Navigate to a course details/dashboard page. Ensure you have a route for /course/:courseId
-    navigate(`/course/${id}`);
+    navigate("/InquiryForm");
+    return;
   };
 
   return (
@@ -245,6 +248,37 @@ export default function Backend() {
             </div>
           </div>
         </section>
+        
+        {/* FEATURES */}
+        <section id="features" className="py-20 bg-linear-to-b from-gray-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-800 mb-4">Course Features</h2>
+              <p className="text-xl text-gray-600">Everything you need to succeed</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                { title: "Real World Projects", color: "blue" },
+                { title: "Expert Mentorship", color: "purple" },
+                { title: "Live Sessions", color: "red" },
+                { title: "Certification", color: "purple" },
+                { title: "Lifetime Access", color: "red" },
+                { title: "Community Support", color: "blue" },
+              ].map((f) => (
+                <div key={f.title} className="group">
+                  <div className="bg-white rounded-2xl shadow-xl p-8 transition-transform duration-500 transform group-hover:-translate-y-1">
+                    <div className={`w-16 h-16 bg-${f.color}-100 rounded-full flex items-center justify-center mb-6`}>
+                      <span className={`w-8 h-8 rounded-full bg-${f.color}-600 inline-block`} />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3">{f.title}</h3>
+                    <p className="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat, quaerat.</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* TESTIMONIALS */}
         <section id="testimonials" className="p-5 mb-5 bg-gradient-to-b from-blue-50 to-white overflow-hidden">
@@ -315,7 +349,7 @@ export default function Backend() {
               <div className="group inline-block relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition" />
                 <button
-                  onClick={handleEnroll}
+                  onClick={() => navigate("/InquiryForm")}
                   data-course-id="backend"
                   data-course-name="Backend Development Program"
                   data-course-amount="50000"
@@ -351,7 +385,7 @@ export default function Backend() {
             <div>
               <h4 className="text-lg font-bold mb-6">Support</h4>
               <ul className="space-y-3">
-                <li><a href="mailto:internindianacademy@gmail.com?subject=Support%20Request" className="text-gray-400 hover:text-white">Contact Us</a></li>
+                <li><a href="mailto:info@iiacademy.in?subject=Support%20Request" className="text-gray-400 hover:text-white">Contact Us</a></li>
               </ul>
             </div>
 

@@ -5,4 +5,9 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  
+  // ✅ ADD THIS PART
+  build: {
+    chunkSizeWarningLimit: 2000, // increase limit from default 500kb
+  },
 })

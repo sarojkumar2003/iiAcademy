@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const inquiryRoutes = require('./routes/inquiryRoutes');
 
 dotenv.config();
 
@@ -71,6 +72,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/courses', courseRoutes);
 // app.use('/api/protected', protectedRoutes); // optional test routes
+
+app.use('/api/inquiries', inquiryRoutes);
 
 // Default Route to check server status
 app.get('/', (req, res) => {

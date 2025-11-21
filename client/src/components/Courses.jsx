@@ -63,6 +63,15 @@ export default function Courses() {
             </div>
           ))}
         </div>
+        <div className="verify-section">
+          
+          <button
+            onClick={() => navigate("/certificate-verification")}
+            className="mt-10 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go to Verification Page
+          </button>
+        </div>
       </div>
     </section>
   );

@@ -50,7 +50,7 @@ export default function Frontend() {
     }
 
     // Navigate to course dashboard / details page
-    navigate(`/course/${id}`);
+    navigate(`/frontend-inquiry`);
   };
 
   return (
