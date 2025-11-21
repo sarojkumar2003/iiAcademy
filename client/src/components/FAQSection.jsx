@@ -74,7 +74,7 @@ function FAQItem({ item, open, onToggle }) {
   );
 }
 
-export default function FAQSection({ supportEmail = "abc@gmail.com" }) {
+export default function FAQSection({ supportEmail = "info@iiacademy.in" }) {
   const [openIndex, setOpenIndex] = useState(-1);
 
   const mailto = ({ subject = "Support Request", body = "" } = {}) => {
