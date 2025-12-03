@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
 export default function Courses() {
-  const navigate = useNavigate();
-
+  const navigate = useNavigate();  
+  
   const courses = [
     {
       title: "Frontend Development",
