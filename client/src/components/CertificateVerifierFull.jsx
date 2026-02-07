@@ -349,7 +349,7 @@ export default function CertificateVerifier() {
                                             </p>
 
                                             <p className="text-[1.25rem] text-slate-500 font-['Lora'] italic mt-4 tracking-wide">
-                                                During the internship period, the candidate was exposed to
+                                                During the internship period, the candidate gained practical exposure to
                                                 <span className="font-bold italic border-b border-slate-300 px-2 ml-1 inline text-[#1a365d]">
                                                     {result.skills_gained ?? result.skills ?? 'Backend Development, REST APIs, Database Management, and Git Version Control'}
                                                 </span>.
