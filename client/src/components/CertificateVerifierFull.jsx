@@ -345,7 +345,7 @@ export default function CertificateVerifier() {
                                                 field of <span className="font-bold border-b border-slate-300 px-1 inline text-[#1a365d]">{result.certificate_name ?? result.certificatename ?? result.certificate ?? '[ Field Name ]'}</span> from <span className="font-bold border-b border-slate-300 px-1 inline text-[#1a365d]">{formatDate(result.starting_Date ?? result.starting_date ?? result.start_date ?? '[ Date ]')}</span> to
                                                 <span className="font-bold border-b border-slate-300 px-1 inline text-[#1a365d]">{formatDate(result.ending_Date ?? result.ending_date ?? result.end_date ?? result.date_of_issue ?? '[ Date ]')}</span> under guidance of
                                                 {" "}
-                                                <span className="font-bold border-b border-slate-300 px-1 inline text-[#1a365d]">iiAcademy</span>.
+                                                <span className="font-bold border-b border-slate-300 px-1 inline text-[#1a365d]">IIAcademy</span>.
                                             </p>
 
                                             <p className="text-[1.25rem] text-slate-500 font-['Lora'] italic mt-4 tracking-wide">
