@@ -447,6 +447,13 @@ export default function AdminDashboard() {
             </div>
 
             <button
+              onClick={() => navigate('/write-blog')}
+              className="px-3 py-2 rounded-md font-medium bg-emerald-600 text-white text-sm shadow-sm hover:bg-emerald-700 transition"
+            >
+              Write Blog
+            </button>
+
+            <button
               onClick={() => { setTab("courses"); fetchCourses(); }}
               className={`px-3 py-2 rounded-md text-sm ${tab === "courses" ? "bg-indigo-600 text-white" : "bg-white text-gray-700 shadow-sm"}`}
               disabled={loading}

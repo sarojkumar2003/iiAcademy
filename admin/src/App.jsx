@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import AdminSignup from './components/AdminSignup';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import BlogEditor from './components/BlogEditor';
 
 export default function App(){
   return (
@@ -11,6 +12,7 @@ export default function App(){
       <Route path="/login" element={<AdminLogin />} />
       <Route path="/signup" element={<AdminSignup />} />
       <Route path="/dashboard" element={<AdminDashboard />} />
+      <Route path="/write-blog" element={<BlogEditor />} />
     </Routes>
   );
 }
